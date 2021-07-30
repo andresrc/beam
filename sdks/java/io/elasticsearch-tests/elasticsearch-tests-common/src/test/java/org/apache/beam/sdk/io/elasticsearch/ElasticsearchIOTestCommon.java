@@ -55,6 +55,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiFunction;
 import org.apache.beam.sdk.io.BoundedSource;
 import org.apache.beam.sdk.io.elasticsearch.ElasticsearchIO.BulkIO.StatefulBatching;
@@ -953,6 +954,33 @@ class ElasticsearchIOTestCommon implements Serializable {
             .withRetryConfiguration(
                 ElasticsearchIO.RetryConfiguration.create(MAX_ATTEMPTS, Duration.millis(35000))
                     .withRetryPredicate(CUSTOM_RETRY_PREDICATE));
+    executeWriteTest(write);
+  }
+
+  void testWriteAppendOnly(boolean addId) throws Exception {
+    Write write = ElasticsearchIO.write().withConnectionConfiguration(connectionConfiguration).withAppendOnly(true);
+    if (addId) {
+      write = write.withIdFn(new ExtractValueFn("id"));
+    }
+    executeWriteTest(write);
+  }
+
+
+  void testWriteAppendOnlyDeleteNotAllowed(boolean addId) throws Exception {
+    Write write = ElasticsearchIO.write().withConnectionConfiguration(connectionConfiguration)
+        .withIdFn(node -> "not_needed")
+        .withAppendOnly(true).withIsDeleteFn(doc -> true);
+    if (addId) {
+      write = write.withIdFn(new ExtractValueFn("id"));
+    }
+    executeWriteTest(write);
+  }
+
+
+  void testWriteAppendOnlyDeleteNotAllowed() throws Exception {
+    Write write = ElasticsearchIO.write().withConnectionConfiguration(connectionConfiguration)
+        .withIdFn(node -> "not_needed")
+        .withAppendOnly(true).withIsDeleteFn(doc -> true);
     executeWriteTest(write);
   }
 

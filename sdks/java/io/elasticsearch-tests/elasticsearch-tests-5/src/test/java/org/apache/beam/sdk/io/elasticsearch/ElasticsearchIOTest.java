@@ -181,6 +181,18 @@ public class ElasticsearchIOTest implements Serializable {
   }
 
   @Test
+  public void testWriteAppendOnly() throws Exception {
+    elasticsearchIOTestCommon.setPipeline(pipeline);
+    elasticsearchIOTestCommon.testWriteAppendOnly(true);
+  }
+
+  @Test(expected = Exception.class)
+  public void testWriteAppendOnlyDeleteNotAllowed() throws Exception {
+    elasticsearchIOTestCommon.setPipeline(pipeline);
+    elasticsearchIOTestCommon.testWriteAppendOnlyDeleteNotAllowed(true);
+  }
+
+  @Test
   public void testWriteWithAllowableErrors() throws Exception {
     elasticsearchIOTestCommon.testWriteWithAllowedErrors();
   }
